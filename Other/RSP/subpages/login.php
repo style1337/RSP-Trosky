@@ -1,9 +1,14 @@
+<?php
+	session_start();
+    require("connect.php");
+?>
+
 <!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrace</title>
+    <title>Prihlášení</title>
     <link rel="stylesheet" href="../design.css">
 </head>
 <body>
@@ -11,14 +16,14 @@
         <div class="header-container">
             <div class="left-nav">
                 <ul>
-                    <li><a href="./contact.html">Kontakt</a></li>
-                    <li><a href="./aboutus.html">O nás</a></li>
-                    <li><a href="./articles.html">Články</a></li>
-                    <li><a href="../trosky.html">Hlavní strana</a></li>
+                    <li><a href="./contact.php">Kontakt</a></li>
+                    <li><a href="./aboutus.php">O nás</a></li>
+                    <li><a href="./articles.php">Články</a></li>
+                    <li><a href="../trosky.php">Hlavní strana</a></li>
                 </ul>
             </div>
             <div class="logo">
-                <a href="../trosky.html">
+                <a href="../trosky.php">
                     <img src="../images/logo.png" alt="Logo">
                 </a>
             </div>
@@ -30,29 +35,42 @@
         </div>
     </header>
 
+    <!--Dodělat design okénka pro informaci o statusu registrace a přihlášení-->
+<div id="error-message">
+            <?php
+            if (isset($_SESSION['error'])) {
+                echo $_SESSION['error'];
+                unset($_SESSION['error']);
+            }
+            ?>
+        </div>
+        <div id="success-message">
+            <?php
+            if (isset($_SESSION['success'])) {
+                echo $_SESSION['success'];
+                unset($_SESSION['success']);
+            }
+            ?>
+</div>
     <section class="main-content">
-        <div class="register-container">
-            <h2>Registrace</h2>
-            <form action="submit_register.php" method="POST">
+        <div class="login-container">
+            <h2>Prihlášení</h2>
+            <form action="submit_login.php" method="POST">
                 <div class="form-group">
                     <label for="username">Uživatelské jméno</label>
                     <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Heslo</label>
                     <input type="password" id="password" name="password" required>
                 </div>
                 <div class="form-group">
-                    <button type="submit">Registrovat se</button>
+                    <button type="submit">Přihlásit se</button>
                 </div>
             </form>
             <div class="form-options">
-                <a href="./login.html">Už máte účet? Přihlaste se</a>
-                <a href="../articles.html" class="guest-link">Pokračovat jako čtenář</a>
+                <a href="register.php">Nemáte účet? Zaregistrujte se</a>
+                <a href="articles.php" class="guest-link">Pokracovat jako čtenář</a>
             </div>
         </div>
     </section>
