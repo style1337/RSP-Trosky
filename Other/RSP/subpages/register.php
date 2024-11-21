@@ -1,9 +1,14 @@
+<?php
+	session_start();
+    require("connect.php");
+?>
+
 <!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prihlášení</title>
+    <title>Registrace</title>
     <link rel="stylesheet" href="../design.css">
 </head>
 <body>
@@ -31,24 +36,28 @@
     </header>
 
     <section class="main-content">
-        <div class="login-container">
-            <h2>Prihlášení</h2>
-            <form action="submit_login.php" method="POST">
+        <div class="register-container">
+            <h2>Registrace</h2>
+            <form action="submit_register.php" method="POST">
                 <div class="form-group">
                     <label for="username">Uživatelské jméno</label>
                     <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Heslo</label>
                     <input type="password" id="password" name="password" required>
                 </div>
                 <div class="form-group">
-                    <button type="submit">Přihlásit se</button>
+                    <button type="submit">Registrovat se</button>
                 </div>
             </form>
             <div class="form-options">
-                <a href="register.html">Nemáte účet? Zaregistrujte se</a>
-                <a href="articles.html" class="guest-link">Pokracovat jako čtenář</a>
+                <a href="./login.html">Už máte účet? Přihlaste se</a>
+                <a href="../articles.html" class="guest-link">Pokračovat jako čtenář</a>
             </div>
         </div>
     </section>
