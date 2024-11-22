@@ -16,14 +16,14 @@
         <div class="header-container">
             <div class="left-nav">
                 <ul>
-                    <li><a href="./contact.html">Kontakt</a></li>
-                    <li><a href="./aboutus.html">O nás</a></li>
-                    <li><a href="./articles.html">Články</a></li>
-                    <li><a href="../trosky.html">Hlavní strana</a></li>
+                    <li><a href="./contact.php">Kontakt</a></li>
+                    <li><a href="./aboutus.php">O nás</a></li>
+                    <li><a href="./articles.php">Články</a></li>
+                    <li><a href="../trosky.php">Hlavní strana</a></li>
                 </ul>
             </div>
             <div class="logo">
-                <a href="../trosky.html">
+                <a href="../trosky.php">
                     <img src="../images/logo.png" alt="Logo">
                 </a>
             </div>
@@ -56,8 +56,8 @@
                 </div>
             </form>
             <div class="form-options">
-                <a href="./login.html">Už máte účet? Přihlaste se</a>
-                <a href="../articles.html" class="guest-link">Pokračovat jako čtenář</a>
+                <a href="./login.php">Už máte účet? Přihlaste se</a>
+                <a href="../articles.php" class="guest-link">Pokračovat jako čtenář</a>
             </div>
         </div>
     </section>

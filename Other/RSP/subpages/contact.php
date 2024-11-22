@@ -38,7 +38,7 @@
                             
                             else {
    						        // User is not logged in
-    					        echo "<li><a href=\"subpages/login.php\">Login</a></li>";
+    					        echo "<li><a href=\"login.php\">Login</a></li>";
 							}
 						?>
                     </ul>
