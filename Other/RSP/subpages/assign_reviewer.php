@@ -176,7 +176,7 @@
                 <p><strong>Tématické číslo:</strong> <?php echo htmlspecialchars($article['category']); ?></p>
                 <p><strong>Datum:</strong> <?php echo htmlspecialchars(date("d.m.Y H:i:s", strtotime($article['date']))); ?></p>
                 <p><strong>Verze:</strong> <?php echo htmlspecialchars($article['version']); ?></p>
-                <p><strong>Status:</strong> <?php echo htmlspecialchars(getFormalStatus($row['status'])); ?></p>
+                <p><strong>Status:</strong> <?php echo htmlspecialchars(getFormalStatus($article['status'])); ?></p>
                 <a href="<?php echo htmlspecialchars($article['file']); ?>" target="_blank">Zobrazit PDF</a>
             </div>
             <div class="reviewer-selection">
