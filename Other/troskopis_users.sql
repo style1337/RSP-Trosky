@@ -29,11 +29,11 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `troskopis_users` (
   `user_id` int NOT NULL,
-  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `username` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `password` varchar(100) NOT NULL,
   `email` varchar(50) NOT NULL,
-  `role` enum('admin','reviewer','author','editor','chiefeditor') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'author'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `role` enum('admin','reviewer','author','editor','chiefeditor') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'author'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Indexes for dumped tables

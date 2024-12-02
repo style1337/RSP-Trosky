@@ -1,13 +1,68 @@
 <?php
     session_start();
     require("connect.php");
+
+    // Allow access only for role "editor"
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'editor') {
+        header("Location: unauthorized.php");
+        exit();
+    }
+
+    // Save posted "?article_id=" to a variable
+    $article_id = isset($_GET['article_id']) ? intval($_GET['article_id']) : 0;
+
+    // Handle form submission
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $reviewer_id = isset($_POST['reviewer_id']) ? intval($_POST['reviewer_id']) : 0;
+
+        if ($reviewer_id > 0) {
+            // Update the article with the selected reviewer
+            $update_query = "
+                UPDATE troskopis_articles 
+                SET status = 'pending_review', assigned_reviewer = $reviewer_id 
+                WHERE article_id = $article_id
+            ";
+
+            if (mysqli_query($spojeni, $update_query)) {
+                $_SESSION['success'] = "Recenzent byl úspěšně přiřazen.";
+            } else {
+                $_SESSION['error'] = "Došlo k chybě při přiřazování recenzenta.";
+            }
+
+            header("Location: article_panel.php");
+            exit();
+        } else {
+            $_SESSION['error'] = "Musíte vybrat recenzenta.";
+            header("Location: assign_reviewer.php?article_id=$article_id");
+            exit();
+        }
+    }
+
+    // Fetch article information
+    $article_query = "
+        SELECT a.*, u.username 
+        FROM troskopis_articles a 
+        JOIN troskopis_users u 
+        ON a.author_id = u.user_id 
+        WHERE a.article_id = $article_id
+    ";
+    $article_result = mysqli_query($spojeni, $article_query);
+    $article = mysqli_fetch_assoc($article_result);
+
+    // Fetch reviewers
+    $reviewers_query = "
+        SELECT user_id, username 
+        FROM troskopis_users 
+        WHERE role = 'reviewer'
+    ";
+    $reviewers_result = mysqli_query($spojeni, $reviewers_query);
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Kontakt</title>
+        <title>Přiřadit recenzenta</title>
         <link rel="stylesheet" href="../design.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
@@ -29,12 +84,6 @@
             </div>
             <div class="right-nav">
                 <ul>
-                        <!-- Tlačítko pro nahrání článků se zobrazí pouze pro autora -->
-                        <?php
-                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'author') {
-                                echo '<li><a href="./article_upload.php">Nahrát článek</a></li>';
-                            }
-                        ?>
                         <!-- Tlačítko pro panel článků se zobrazí pro přihlášené uživatele -->
                         <?php
                             if (isset($_SESSION['username'])) {
@@ -60,11 +109,7 @@
                 <button class="dropbtn">&#9776;</button>
                 <div class="dropdown-content">
                     <ul>
-                        <?php
-                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'author') {
-                                echo '<li><a href="./article_upload.php">Nahrát článek</a></li>';
-                            }
-                        ?>
+                        
                         <?php
                             if (isset($_SESSION['username'])) {
                                 echo '<li><a href="./article_panel.php">Panel článků</a></li>';
@@ -92,7 +137,6 @@
             </div>
         </div>
     </header>
-        
         <main>
             <?php
                 if (isset($_SESSION['success'])) {
@@ -103,6 +147,33 @@
                     unset($_SESSION['error']);
                 }
             ?>
+            <div class="article-info">
+                <h2>Informace o článku</h2>
+                <p><strong>Název:</strong> <?php echo htmlspecialchars($article['name']); ?></p>
+                <p><strong>Autor:</strong> <?php echo htmlspecialchars($article['username']); ?></p>
+                <p><strong>Tématické číslo:</strong> <?php echo htmlspecialchars($article['category']); ?></p>
+                <p><strong>Datum:</strong> <?php echo htmlspecialchars(date("d.m.Y H:i:s", strtotime($article['date']))); ?></p>
+                <p><strong>Verze:</strong> <?php echo htmlspecialchars($article['version']); ?></p>
+                <p><strong>Status:</strong> <?php echo htmlspecialchars($article['formal_status']); ?></p>
+                <a href="<?php echo htmlspecialchars($article['file']); ?>" target="_blank">Zobrazit PDF</a>
+            </div>
+            <div class="reviewer-selection">
+                <h2>Vyberte recenzenta</h2>
+                <form method="post" action="assign_reviewer.php?article_id=<?php echo $article_id; ?>">
+                    <select name="reviewer_id">
+                        <option value="">-- Vyberte recenzenta --</option>
+                        <?php
+                            while ($reviewer = mysqli_fetch_assoc($reviewers_result)) {
+                                echo '<option value="' . htmlspecialchars($reviewer['user_id']) . '">' . htmlspecialchars($reviewer['username']) . '</option>';
+                            }
+                        ?>
+                    </select>
+                    <div class="button-container">
+                        <button type="submit">Přiřadit recenzenta</button>
+                        <a href="article_panel.php">Zpět na panel článků</a>
+                    </div>
+                </form>
+            </div>
         </main>
 
         <footer>

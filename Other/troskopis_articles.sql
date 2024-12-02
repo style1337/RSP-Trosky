@@ -36,7 +36,7 @@ CREATE TABLE `troskopis_articles` (
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `version` int NOT NULL DEFAULT '1',
   `status` enum('submitted','pending_assignment','pending_review','reviewed','editing','approved','rejected') NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Indexes for dumped tables

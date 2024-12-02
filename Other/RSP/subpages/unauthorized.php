@@ -1,18 +1,18 @@
 <?php
-	session_start();
+    session_start();
     require("connect.php");
 ?>
 
 <!DOCTYPE html>
-<html lang="cs">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prihlášení</title>
-    <link rel="stylesheet" href="../design.css">
-</head>
-<body>
-<header>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Neoprávněný přístup</title>
+        <link rel="stylesheet" href="../design.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+    <header>
         <div class="header-container">
             <div class="left-nav">
                 <ul>
@@ -93,42 +93,26 @@
         </div>
     </header>
 
-    
-    <main>
-        <?php
-            if (isset($_SESSION['success'])) {
-                echo '<div class="status-message status-message-success">' . htmlspecialchars($_SESSION['success']) . '</div>';
-                unset($_SESSION['success']);
-            } elseif (isset($_SESSION['error'])) {
-                echo '<div class="status-message status-message-error">' . htmlspecialchars($_SESSION['error']) . '</div>';
-                unset($_SESSION['error']);
-            }
-        ?>
-        <div class="login-container">
-            <h2>Přihlášení</h2>
-            <form action="submit_login.php" method="POST">
-                <div class="form-group">
-                    <label for="username">Uživatelské jméno</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Heslo</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <div class="form-group">
-                    <button type="submit">Přihlásit se</button>
-                </div>
-            </form>
-            <div class="form-options">
-                <a href="register.php">Nemáte účet? Zaregistrujte se</a>
-                <a href="articles.php" class="guest-link">Pokračovat jako čtenář</a>
+        <main>
+            <?php
+                if (isset($_SESSION['success'])) {
+                    echo '<div class="status-message status-message-success">' . htmlspecialchars($_SESSION['success']) . '</div>';
+                    unset($_SESSION['success']);
+                } elseif (isset($_SESSION['error'])) {
+                    echo '<div class="status-message status-message-error">' . htmlspecialchars($_SESSION['error']) . '</div>';
+                    unset($_SESSION['error']);
+                }
+            ?>
+            <div class="unauthorized-container">
+                <h1>Přístup odepřen</h1>
+                <p>Nemáte oprávnění pro přístup na tuto stránku.</p>
+                <a href="../trosky.php">Zpět na hlavní stránku</a>
             </div>
-        </div>
-    </main>
+        </main>
 
-    <footer>
-        <p>Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole
-        polytechnické Jihlava. Nejedná se o stránky skutečného odborného časopisu!</p>  
-    </footer>
-</body>
+        <footer>
+            <p>Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole
+            polytechnické Jihlava. Nejedná se o stránky skutečného odborného časopisu!</p>  
+        </footer>
+    </body>
 </html>

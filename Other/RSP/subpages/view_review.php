@@ -1,13 +1,61 @@
 <?php
     session_start();
     require("connect.php");
+
+    // Povolit přístup pouze pro role "author", "reviewer", "editor", "chiefeditor"
+    if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['author', 'reviewer', 'editor', 'chiefeditor'])) {
+        header("Location: unauthorized.php");
+        exit();
+    }
+
+    // Načtení informací o článku a recenzi
+    $article_id = isset($_GET['article_id']) ? intval($_GET['article_id']) : 0;
+    $article_query = "
+        SELECT a.*, u.username 
+        FROM troskopis_articles a 
+        JOIN troskopis_users u 
+        ON a.author_id = u.user_id 
+        WHERE a.article_id = $article_id
+    ";
+    $article_result = mysqli_query($spojeni, $article_query);
+    $article = mysqli_fetch_assoc($article_result);
+
+    if (!$article) {
+        $_SESSION['error'] = "Článek nebyl nalezen.";
+        header("Location: article_panel.php");
+        exit();
+    }
+
+    // Kontrola oprávnění pro autora a recenzenta
+    if ($_SESSION['role'] === 'author' && $article['author_id'] !== $_SESSION['user_id']) {
+        $_SESSION['error'] = "Nemáte oprávnění zobrazit tuto recenzi.";
+        header("Location: article_panel.php");
+        exit();
+    }
+
+    if ($_SESSION['role'] === 'reviewer' && $article['assigned_reviewer'] !== $_SESSION['user_id']) {
+        $_SESSION['error'] = "Nemáte oprávnění zobrazit tuto recenzi.";
+        header("Location: article_panel.php");
+        exit();
+    }
+
+    // Načtení recenzí
+    $review_query = "
+        SELECT r.*, u.username AS reviewer_name 
+        FROM troskopis_reviews r 
+        JOIN troskopis_users u 
+        ON r.reviewer_id = u.user_id 
+        WHERE r.article_id = $article_id
+        ORDER BY r.date DESC
+    ";
+    $review_result = mysqli_query($spojeni, $review_query);
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Kontakt</title>
+        <title>Recenze článku</title>
         <link rel="stylesheet" href="../design.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
@@ -92,7 +140,8 @@
             </div>
         </div>
     </header>
-        
+
+
         <main>
             <?php
                 if (isset($_SESSION['success'])) {
@@ -103,6 +152,23 @@
                     unset($_SESSION['error']);
                 }
             ?>
+            
+            <div class="review-container">
+            <h2>Recenze článku "<?php echo htmlspecialchars($article['name']); ?>" od autora "<?php echo htmlspecialchars($article['username']); ?>"</h2>
+            <?php
+                while ($review = mysqli_fetch_assoc($review_result)) {
+                    echo '<div class="review">';
+                    echo '<p><strong>Recenzent:</strong> ' . htmlspecialchars($review['reviewer_name']) . '</p>';
+                    echo '<p><strong>Relevance:</strong> ' . htmlspecialchars($review['score_relevance']) . '</p>';
+                    echo '<p><strong>Originalita:</strong> ' . htmlspecialchars($review['score_originality']) . '</p>';
+                    echo '<p><strong>Odborná úroveň:</strong> ' . htmlspecialchars($review['score_scientific']) . '</p>';
+                    echo '<p><strong>Jazyková a stylistická úroveň:</strong> ' . htmlspecialchars($review['score_style']) . '</p>';
+                    echo '<p><strong>Komentáře:</strong> ' . htmlspecialchars($review['comment']) . '</p>';
+                    echo '<p><strong>Datum recenze:</strong> ' . date('d.m.Y H:i:s', strtotime($review['date'])) . '</p>';
+                    echo '</div>';
+                }
+            ?>
+        </div>
         </main>
 
         <footer>

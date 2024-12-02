@@ -1,13 +1,98 @@
 <?php
     session_start();
     require("connect.php");
+
+    // Povolit přístup pouze pro roli "author"
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'author') {
+        header("Location: unauthorized.php");
+        exit();
+    }
+
+    // Get article ID and appealed parameter
+    $article_id = isset($_GET['article_id']) ? intval($_GET['article_id']) : 0;
+    $appealed = isset($_GET['appealed']) ? intval($_GET['appealed']) : 0;
+
+    // Check if article exists and user is owner
+    $article_query = "
+        SELECT * FROM troskopis_articles 
+        WHERE article_id = $article_id 
+        AND author_id = {$_SESSION['user_id']}
+    ";
+    $article_result = mysqli_query($spojeni, $article_query);
+    $article = mysqli_fetch_assoc($article_result);
+
+    if (!$article) {
+        $_SESSION['error'] = "Článek nebyl nalezen nebo k němu nemáte přístup.";
+        header("Location: article_panel.php");
+        exit();
+    }
+
+    // Handle form submission
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_FILES['pdfFile'])) {
+            $fileTmpPath = $_FILES['pdfFile']['tmp_name'];
+            $fileName = $_FILES['pdfFile']['name'];
+            $fileType = $_FILES['pdfFile']['type'];
+
+            if ($fileType === 'application/pdf') {
+                // Generate new unique filename
+                $uploadPath = '../articles/' . uniqid() . '_' . basename($fileName);
+
+                if (move_uploaded_file($fileTmpPath, $uploadPath)) {
+                    // Begin transaction
+                    mysqli_begin_transaction($spojeni);
+
+                    try {
+                        // Insert current version into history
+                        $history_query = "
+                            INSERT INTO troskopis_articlehistory 
+                            (article_id, author_id, name, file, category, date, version, hidden)
+                            VALUES 
+                            ({$article['article_id']}, {$article['author_id']}, 
+                             '{$article['name']}', '{$article['file']}', 
+                             {$article['category']}, '{$article['date']}', 
+                             {$article['version']}, " . ($appealed ? "TRUE" : "FALSE") . ")
+                        ";
+                        
+                        mysqli_query($spojeni, $history_query);
+
+                        // Update article with new file, increment version, update date and status
+                        $new_version = $article['version'] + 1;
+                        $current_date = date('Y-m-d H:i:s');
+                        $update_query = "
+                            UPDATE troskopis_articles 
+                            SET file = '$uploadPath',
+                                version = $new_version,
+                                date = '$current_date',
+                                status = 'pending_review'
+                            WHERE article_id = $article_id
+                        ";
+                        
+                        mysqli_query($spojeni, $update_query);
+
+                        mysqli_commit($spojeni);
+                        $_SESSION['success'] = "Článek byl úspěšně aktualizován.";
+                        header("Location: article_panel.php");
+                        exit();
+                    } catch (Exception $e) {
+                        mysqli_rollback($spojeni);
+                        $_SESSION['error'] = "Chyba při aktualizaci článku: " . $e->getMessage();
+                    }
+                } else {
+                    $_SESSION['error'] = "Chyba při nahrávání souboru.";
+                }
+            } else {
+                $_SESSION['error'] = "Pouze PDF soubory jsou povoleny.";
+            }
+        }
+    }
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Kontakt</title>
+        <title>Nahrát článek</title>
         <link rel="stylesheet" href="../design.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
@@ -92,8 +177,8 @@
             </div>
         </div>
     </header>
-        
-        <main>
+                            
+        <section class="main-content">
             <?php
                 if (isset($_SESSION['success'])) {
                     echo '<div class="status-message status-message-success">' . htmlspecialchars($_SESSION['success']) . '</div>';
@@ -103,7 +188,15 @@
                     unset($_SESSION['error']);
                 }
             ?>
-        </main>
+            <div class="upload-form">
+                <h2>Upravit článek: <?php echo htmlspecialchars($article['name']); ?></h2>
+                <form action="edit_article.php?article_id=<?php echo $article_id; ?>&appealed=<?php echo $appealed; ?>" method="POST" enctype="multipart/form-data">
+                    <label for="pdfFile">Vyberte novou verzi PDF souboru:</label>
+                    <input type="file" name="pdfFile" accept="application/pdf" required>
+                    <button type="submit">Nahrát novou verzi</button>
+                </form>
+            </div>
+        </section>
 
         <footer>
             <p>Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole

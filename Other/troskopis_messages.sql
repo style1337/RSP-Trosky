@@ -33,7 +33,7 @@ CREATE TABLE `troskopis_messages` (
   `recipient_id` int NOT NULL,
   `content` varchar(1000) NOT NULL,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Indexes for dumped tables
