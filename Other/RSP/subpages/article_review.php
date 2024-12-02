@@ -38,8 +38,30 @@
 
         // Vložení recenze do tabulky troskopis_reviews
         $review_query = "
-            INSERT INTO troskopis_reviews (article_id, reviewer_id, article_version, score_relevance, score_originality, score_scientific, score_style, comment, date) 
-            VALUES ($article_id, {$_SESSION['user_id']}, $article_version, $relevance, $originality, $scientific, $style, '$comments', '$review_date')
+            INSERT INTO troskopis_reviews (
+                article_id, 
+                reviewer_id, 
+                article_version, 
+                score_relevance, 
+                score_originality, 
+                score_scientific, 
+                score_style, 
+                comment, 
+                date,
+                version
+            ) 
+            VALUES (
+                $article_id, 
+                {$_SESSION['user_id']}, 
+                $article_version, 
+                $relevance, 
+                $originality, 
+                $scientific, 
+                $style, 
+                '$comments', 
+                '$review_date',
+                (SELECT version FROM troskopis_articles WHERE article_id = $article_id)
+            )
         ";
 
         if (mysqli_query($spojeni, $review_query)) {

@@ -41,12 +41,18 @@
 
     // Načtení recenzí
     $review_query = "
-        SELECT r.*, u.username AS reviewer_name 
+        SELECT r.*, u.username AS reviewer_name, 
+            a.version as current_version,
+            CASE 
+                WHEN r.version = a.version THEN 'current'
+                WHEN r.date = (SELECT MAX(r2.date) FROM troskopis_reviews r2 WHERE r2.article_id = r.article_id) THEN 'latest'
+                ELSE 'old'
+            END as review_status
         FROM troskopis_reviews r 
-        JOIN troskopis_users u 
-        ON r.reviewer_id = u.user_id 
+        JOIN troskopis_users u ON r.reviewer_id = u.user_id 
+        JOIN troskopis_articles a ON r.article_id = a.article_id
         WHERE r.article_id = $article_id
-        ORDER BY r.date DESC
+        ORDER BY r.version DESC, r.date DESC
     ";
     $review_result = mysqli_query($spojeni, $review_query);
 ?>
@@ -157,8 +163,15 @@
             <h2>Recenze článku "<?php echo htmlspecialchars($article['name']); ?>" od autora "<?php echo htmlspecialchars($article['username']); ?>"</h2>
             <?php
                 while ($review = mysqli_fetch_assoc($review_result)) {
-                    echo '<div class="review">';
+                    echo '<div class="review ' . $review['review_status'] . '">';
+                    if ($review['review_status'] == 'current') {
+                        echo '<p><strong style="color: #28a745;">Recenze aktuální verze</strong></p>';
+                    } elseif ($review['review_status'] == 'latest') {
+                        echo '<p><strong style="color: #007bff;">Nejnovější recenze</strong></p>';
+                    }
                     echo '<p><strong>Recenzent:</strong> ' . htmlspecialchars($review['reviewer_name']) . '</p>';
+                    echo '<p><strong>Verze článku:</strong> ' . htmlspecialchars($review['version']) . 
+                         ($review['version'] == $review['current_version'] ? ' (aktuální)' : '') . '</p>';
                     echo '<p><strong>Relevance:</strong> ' . htmlspecialchars($review['score_relevance']) . '</p>';
                     echo '<p><strong>Originalita:</strong> ' . htmlspecialchars($review['score_originality']) . '</p>';
                     echo '<p><strong>Odborná úroveň:</strong> ' . htmlspecialchars($review['score_scientific']) . '</p>';

@@ -536,6 +536,15 @@ footer {
     margin-bottom: 1rem;
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #333;
+}
+
+.review.current {
+    border-left: 5px solid #28a745; /* Green for current version */
+}
+
+.review.latest {
+    border-left: 5px solid #007bff; /* Blue for latest review */
 }
 
 .review p {

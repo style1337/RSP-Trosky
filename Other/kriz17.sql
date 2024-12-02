@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 02, 2024 at 02:14 AM
+-- Generation Time: Dec 02, 2024 at 11:08 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -38,7 +38,6 @@ CREATE TABLE `troskopis_articlehistory` (
   `hidden` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-
 -- --------------------------------------------------------
 
 --
@@ -58,7 +57,6 @@ CREATE TABLE `troskopis_articles` (
   `assigned_reviewer` int(11) DEFAULT NULL,
   `appeal_message` varchar(1000) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
 
 --
 -- Triggers `troskopis_articles`
@@ -122,9 +120,9 @@ CREATE TABLE `troskopis_reviews` (
   `score_scientific` int(11) NOT NULL,
   `score_style` int(11) NOT NULL,
   `comment` varchar(1000) NOT NULL,
-  `date` datetime NOT NULL DEFAULT current_timestamp()
+  `date` datetime NOT NULL DEFAULT current_timestamp(),
+  `version` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
 
 -- --------------------------------------------------------
 
@@ -139,7 +137,6 @@ CREATE TABLE `troskopis_users` (
   `email` varchar(50) NOT NULL,
   `role` enum('admin','reviewer','author','editor','chiefeditor') NOT NULL DEFAULT 'author'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
 
 --
 -- Indexes for dumped tables
@@ -190,7 +187,7 @@ ALTER TABLE `troskopis_users`
 -- AUTO_INCREMENT for table `troskopis_articles`
 --
 ALTER TABLE `troskopis_articles`
-  MODIFY `article_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `article_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `troskopis_messages`
@@ -202,13 +199,13 @@ ALTER TABLE `troskopis_messages`
 -- AUTO_INCREMENT for table `troskopis_reviews`
 --
 ALTER TABLE `troskopis_reviews`
-  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `troskopis_users`
 --
 ALTER TABLE `troskopis_users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
