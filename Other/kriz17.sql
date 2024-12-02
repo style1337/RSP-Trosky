@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 02, 2024 at 11:08 AM
+-- Generation Time: Dec 02, 2024 at 01:34 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -53,42 +53,9 @@ CREATE TABLE `troskopis_articles` (
   `date` datetime NOT NULL DEFAULT current_timestamp(),
   `version` int(11) NOT NULL DEFAULT 1,
   `status` enum('pending_assignment','pending_review','reviewed','editing','approved','rejected','appealed') NOT NULL,
-  `formal_status` enum('Čeká na přiřazení','Čeká na recenzi','Recenzováno','Námitka schválena, čeká na úpravy','Schváleno','Zamítnuto','Odvoláno') DEFAULT NULL,
   `assigned_reviewer` int(11) DEFAULT NULL,
   `appeal_message` varchar(1000) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Triggers `troskopis_articles`
---
-DELIMITER $$
-CREATE TRIGGER `update_formal_status` BEFORE INSERT ON `troskopis_articles` FOR EACH ROW BEGIN
-    SET NEW.formal_status = CASE NEW.status
-        WHEN 'pending_assignment' THEN 'Čeká na přiřazení'
-        WHEN 'pending_review' THEN 'Čeká na recenzi'
-        WHEN 'reviewed' THEN 'Recenzováno'
-        WHEN 'editing' THEN 'Námitka schválena, čeká na úpravy'
-        WHEN 'approved' THEN 'Schváleno'
-        WHEN 'rejected' THEN 'Zamítnuto'
-        WHEN 'appealed' THEN 'Odvoláno'
-    END;
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `update_formal_status_on_update` BEFORE UPDATE ON `troskopis_articles` FOR EACH ROW BEGIN
-    SET NEW.formal_status = CASE NEW.status
-        WHEN 'pending_assignment' THEN 'Čeká na přiřazení'
-        WHEN 'pending_review' THEN 'Čeká na recenzi'
-        WHEN 'reviewed' THEN 'Recenzováno'
-        WHEN 'editing' THEN 'Námitka schválena, čeká na úpravy'
-        WHEN 'approved' THEN 'Schváleno'
-        WHEN 'rejected' THEN 'Zamítnuto'
-        WHEN 'appealed' THEN 'Odvoláno'
-    END;
-END
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 

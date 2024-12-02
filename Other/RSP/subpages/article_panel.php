@@ -8,6 +8,28 @@
         header("Location: unauthorized.php");
         exit();
     }
+
+    // Funkce pro formátování statusu článku
+    function getFormalStatus($status) {
+        switch($status) {
+            case 'pending_assignment':
+                return 'Čeká na přiřazení';
+            case 'pending_review':
+                return 'Čeká na recenzi';
+            case 'reviewed':
+                return 'Recenzováno';
+            case 'editing':
+                return 'Námitka schválena, čeká na úpravy';
+            case 'approved':
+                return 'Schváleno';
+            case 'rejected':
+                return 'Zamítnuto';
+            case 'appealed':
+                return 'Odvoláno';
+            default:
+                return $status;
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -152,7 +174,7 @@
                                 echo '<p>Tématické číslo: ' . htmlspecialchars($row['category']) . '</p>';
                                 echo '<p>Datum: ' . htmlspecialchars($formatted_date) . '</p>';
                                 echo '<p>Verze: ' . htmlspecialchars($row['version']) . '</p>';
-                                echo '<p>Status: ' . htmlspecialchars($row['formal_status']) . '</p>';
+                                echo '<p>Status: ' . htmlspecialchars(getFormalStatus($row['status'])) . '</p>';
                                 echo '<a href="' . htmlspecialchars($row['file']) . '" class="review-button" target="_blank">Zobrazit PDF</a>';
 
                                 if ($role === 'author') {

@@ -8,6 +8,28 @@
         exit();
     }
 
+    // Zobrazení formálního statusu
+    function getFormalStatus($status) {
+        switch($status) {
+            case 'pending_assignment':
+                return 'Čeká na přiřazení';
+            case 'pending_review':
+                return 'Čeká na recenzi';
+            case 'reviewed':
+                return 'Recenzováno';
+            case 'editing':
+                return 'Námitka schválena, čeká na úpravy';
+            case 'approved':
+                return 'Schváleno';
+            case 'rejected':
+                return 'Zamítnuto';
+            case 'appealed':
+                return 'Odvoláno';
+            default:
+                return $status;
+        }
+    }
+
     // Save posted "?article_id=" to a variable
     $article_id = isset($_GET['article_id']) ? intval($_GET['article_id']) : 0;
 
@@ -154,7 +176,7 @@
                 <p><strong>Tématické číslo:</strong> <?php echo htmlspecialchars($article['category']); ?></p>
                 <p><strong>Datum:</strong> <?php echo htmlspecialchars(date("d.m.Y H:i:s", strtotime($article['date']))); ?></p>
                 <p><strong>Verze:</strong> <?php echo htmlspecialchars($article['version']); ?></p>
-                <p><strong>Status:</strong> <?php echo htmlspecialchars($article['formal_status']); ?></p>
+                <p><strong>Status:</strong> <?php echo htmlspecialchars(getFormalStatus($row['status'])); ?></p>
                 <a href="<?php echo htmlspecialchars($article['file']); ?>" target="_blank">Zobrazit PDF</a>
             </div>
             <div class="reviewer-selection">
