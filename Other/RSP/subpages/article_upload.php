@@ -1,18 +1,24 @@
 <?php
-	session_start();
+    session_start();
     require("connect.php");
+
+    // Přístup povolen pouze pro autora
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'author') {
+        header("Location: unauthorized.php");
+        exit();
+    }
 ?>
 
 <!DOCTYPE html>
-<html lang="cs">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prihlášení</title>
-    <link rel="stylesheet" href="../design.css">
-</head>
-<body>
-<header>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Nahrát článek</title>
+        <link rel="stylesheet" href="../design.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+    <header>
         <div class="header-container">
             <div class="left-nav">
                 <ul>
@@ -92,43 +98,37 @@
             </div>
         </div>
     </header>
-
-    
-    <main>
-        <?php
-            if (isset($_SESSION['success'])) {
-                echo '<div class="status-message status-message-success">' . htmlspecialchars($_SESSION['success']) . '</div>';
-                unset($_SESSION['success']);
-            } elseif (isset($_SESSION['error'])) {
-                echo '<div class="status-message status-message-error">' . htmlspecialchars($_SESSION['error']) . '</div>';
-                unset($_SESSION['error']);
-            }
-        ?>
-        <div class="login-container">
-            <h2>Přihlášení</h2>
-            <form action="submit_login.php" method="POST">
-                <div class="form-group">
-                    <label for="username">Uživatelské jméno</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Heslo</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <div class="form-group">
-                    <button type="submit">Přihlásit se</button>
-                </div>
+                            
+        <section class="main-content">
+            <?php
+                if (isset($_SESSION['success'])) {
+                    echo '<div class="status-message status-message-success">' . htmlspecialchars($_SESSION['success']) . '</div>';
+                    unset($_SESSION['success']);
+                } elseif (isset($_SESSION['error'])) {
+                    echo '<div class="status-message status-message-error">' . htmlspecialchars($_SESSION['error']) . '</div>';
+                    unset($_SESSION['error']);
+                }
+            ?>
+            <form class="upload-form" action="upload.php" method="POST" enctype="multipart/form-data">
+                <label for="pdfFile">Vyberte PDF soubor:</label>
+                <input type="file" name="pdfFile" accept="application/pdf" required>
+                <label for="article_name">Název článku:</label>
+                <input type="text" name="article_name" required>
+                <label for="article_number">Tématické číslo článku:</label>
+                <select name="article_number" required>
+                    <option value="1">Článek č. 1</option>
+                    <option value="2">Článek č. 2</option>
+                    <option value="3">Článek č. 3</option>
+                    <option value="4">Článek č. 4</option>
+                    <option value="5">Článek č. 5</option>
+                </select>
+                <button type="submit">Nahrát PDF</button>
             </form>
-            <div class="form-options">
-                <a href="register.php">Nemáte účet? Zaregistrujte se</a>
-                <a href="articles.php" class="guest-link">Pokračovat jako čtenář</a>
-            </div>
-        </div>
-    </main>
+        </section>
 
-    <footer>
-        <p>Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole
-        polytechnické Jihlava. Nejedná se o stránky skutečného odborného časopisu!</p>  
-    </footer>
-</body>
+        <footer>
+            <p>Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole
+            polytechnické Jihlava. Nejedná se o stránky skutečného odborného časopisu!</p>  
+        </footer>
+    </body>
 </html>

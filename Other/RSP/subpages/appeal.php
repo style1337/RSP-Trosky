@@ -1,15 +1,70 @@
 <?php
     session_start();
     require("connect.php");
+
+    // Povolit přístup pouze pro roli "author"
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'author') {
+        header("Location: unauthorized.php");
+        exit();
+    }
+
+    // Načtení ID článku z GET parametrů
+    $article_id = isset($_GET['article_id']) ? intval($_GET['article_id']) : 0;
+
+    if ($article_id <= 0) {
+        $_SESSION['error'] = "Neplatné ID článku.";
+        header("Location: article_panel.php");
+        exit();
+    }
+
+    // Get article name
+    $article_query = "SELECT name FROM troskopis_articles WHERE article_id = $article_id";
+    $article_result = mysqli_query($spojeni, $article_query);
+    $article = mysqli_fetch_assoc($article_result);
+
+    if (!$article) {
+        $_SESSION['error'] = "Článek nebyl nalezen.";
+        header("Location: article_panel.php");
+        exit();
+    }
+
+    // Handle form submission
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm']) && $_POST['confirm'] === 'yes') {
+        $appeal_text = mysqli_real_escape_string($spojeni, $_POST['appeal_text']);
+        
+        $update_query = "
+            UPDATE troskopis_articles 
+            SET status = 'appealed', 
+                appeal_message = '$appeal_text'
+            WHERE article_id = $article_id
+        ";
+
+        if (mysqli_query($spojeni, $update_query)) {
+            $_SESSION['success'] = "Námitka byla úspěšně odeslána.";
+            header("Location: article_panel.php");
+            exit();
+        } else {
+            $_SESSION['error'] = "Chyba při ukládání námitky: " . mysqli_error($spojeni);
+        }
+    }
 ?>
 
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Kontakt</title>
+        <title>Podání námitky</title>
         <link rel="stylesheet" href="../design.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>
+            function confirmSubmit() {
+                if (confirm("Poslat námitku redakci?")) {
+                    document.getElementById('confirm').value = 'yes';
+                    return true;
+                }
+                return false;
+            }
+        </script>
     </head>
     <body>
     <header>
@@ -92,7 +147,8 @@
             </div>
         </div>
     </header>
-        
+
+
         <main>
             <?php
                 if (isset($_SESSION['success'])) {
@@ -103,11 +159,26 @@
                     unset($_SESSION['error']);
                 }
             ?>
+            
+            <div class="appeal-form-container">
+            <h2>Podání námitky na verdikt u vašeho článku "<?php echo htmlspecialchars($article['name']); ?>"</h2>
+            <form method="POST" onsubmit="return confirmSubmit();">
+                <textarea 
+                    name="appeal_text" 
+                    rows="10" 
+                    maxlength="1000" 
+                    required 
+                    placeholder="Zde napište obsah námitky, maximálně 1000 znaků"
+                ></textarea>
+                <input type="hidden" name="article_id" value="<?php echo htmlspecialchars($article_id); ?>">
+                <input type="hidden" name="confirm" id="confirm" value="no">
+                <button type="submit">Odeslat námitku</button>
+            </form>
+            </div>
         </main>
 
         <footer>
-            <p>Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole
-            polytechnické Jihlava. Nejedná se o stránky skutečného odborného časopisu!</p>  
+            
         </footer>
     </body>
 </html>

@@ -29,20 +29,32 @@
             </a>
             </div>
             <div class="right-nav">
-                <ul> 
-                        <?php
+                <ul>
+                    <!-- Tlačítko pro nahrání článků se zobrazí pouze pro autora -->
+                    <?php
+                        if (isset($_SESSION['role']) && $_SESSION['role'] == 'author') {
+                            echo '<li><a href="subpages/article_upload.php">Nahrát článek</a></li>';
+                        }
+                    ?>
+                    <!-- Tlačítko pro panel článků se zobrazí pro přihlášené uživatele -->
+                    <?php
+                        if (isset($_SESSION['username'])) {
+                            echo '<li><a href="subpages/article_panel.php">Panel článků</a></li>';
+                        }
+                    ?>
+                    <?php
 
-							if (isset($_SESSION['username'])) {
-    					        // User is logged in
-   			 			        //echo '<li><a>' . $_SESSION['username'] . '</a></li><br />';
-                                echo "<li><a href=\"subpages/logout.php\">Logout</a></li>";
-							} 
-                            
-                            else {
-   						        // User is not logged in
-    					        echo "<li><a href=\"subpages/login.php\">Login</a></li>";
-							}
-						?>
+                        if (isset($_SESSION['username'])) {
+                            // User is logged in
+                            //echo '<li><a>' . $_SESSION['username'] . '</a></li><br />';
+                            echo "<li><a href=\"subpages/logout.php\">Logout</a></li>";
+                        } 
+                        
+                        else {
+                            // User is not logged in
+                            echo "<li><a href=\"subpages/login.php\">Login</a></li>";
+                        }
+                    ?>
                 </ul>
             </div>
             <div class="dropdown">
@@ -50,6 +62,20 @@
                 <div class="dropdown-content">
                     <ul>
                         <?php
+                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'author') {
+                                echo '<li><a href="subpages/article_upload.php">Nahrát článek</a></li>';
+                            }
+                        ?>
+                        <?php
+                            if (isset($_SESSION['username'])) {
+                                echo '<li><a href="subpages/article_panel.php">Panel článků</a></li>';
+                            }
+                        ?>
+                        <li><a href="./trosky.php">Hlavní strana</a></li>
+                        <li><a href="./subpages/articles.php">Články</a></li>
+                        <li><a href="./subpages/aboutus.php">O nás</a></li>
+                        <li><a href="./subpages/contact.php">Kontakt</a></li>
+                        <?php
 
 							if (isset($_SESSION['username'])) {
     					        // User is logged in
@@ -62,10 +88,6 @@
     					        echo "<li><a href=\"subpages/login.php\">Login</a></li>";
 							}
 						?>
-                        <li><a href="./trosky.php">Hlavní strana</a></li>
-                        <li><a href="./subpages/articles.php">Články</a></li>
-                        <li><a href="./subpages/aboutus.php">O nás</a></li>
-                        <li><a href="./subpages/contact.php">Kontakt</a></li>
                     </ul>
                 </div>
             </div>
@@ -73,6 +95,16 @@
     </header>
 
     <section class="main-content">
+        <?php
+            if (isset($_SESSION['success'])) {
+                echo '<div class="status-message status-message-success">' . htmlspecialchars($_SESSION['success']) . '</div>';
+                unset($_SESSION['success']);
+            } elseif (isset($_SESSION['error'])) {
+                echo '<div class="status-message status-message-error">' . htmlspecialchars($_SESSION['error']) . '</div>';
+                unset($_SESSION['error']);
+            }
+        ?>
+
         <div class="slideshow-container">
             <div class="mySlides">
                 <article class="featured">
@@ -134,8 +166,8 @@
             
 
     <footer>
-        <p>&copy; 2024 Troskopis. Všechna práva vyhrazena.</p>
-        
+        <p>Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole
+        polytechnické Jihlava. Nejedná se o stránky skutečného odborného časopisu!</p>  
     </footer>
 </body>
 </html>
