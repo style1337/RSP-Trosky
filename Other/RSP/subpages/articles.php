@@ -106,28 +106,60 @@
                 }
         ?>
 
-        <article class="featured">
-            <h2>Nadpis hlavního článku</h2>
-            <p>Tento článek obsahuje nejdůležitější informace týdne. Zde najdete podrobné analýzy a zajímavé rozhovory.</p>
-        </article>
 
-        <section class="articles">
-            <article>
-                <h3>Nadpis článku 1</h3>
-                <p>Krátký popis článku 1. Klikněte zde pro více informací.</p>
-            </article>
+        <?php
+            $query = "SELECT name, file, category, date FROM troskopis_articles WHERE status = 'approved' ORDER BY date DESC;";
+            $texts = mysqli_query($spojeni, $query);
+            //$now = max($texts['date']);
+            if (isset($texts)) {
+                $text = mysqli_fetch_assoc($texts);
+                echo "<article class=\"featured\">
+                <h2>" . $text['name'] . "</h2>
+                <object data=\"" . $text['file'] . "\" type=\"application/pdf\" width=\"100%\" height=\"500px\">
+                    <p>Unable to display PDF file. <a href=\"/uploads/media/default/0001/01/540cb75550adf33f281f29132dddd14fded85bfc.pdf\">Download</a> instead.</p>
+                </object>
+                </article>";
+                while ($text = mysqli_fetch_assoc($texts)) {
 
-            <article>
-                <h3>Nadpis článku 2</h3>
-                <p>Krátký popis článku 2. Klikněte zde pro více informací.</p>
-            </article>
+                    echo "<section class=\"articles\">
+                    <article>
+                        <h3>" . $text['name'] . "</h3>
+                        <a href=\"" . $text['file'] . "\" class=\"review-button\">Zobrazit článek</a> 
+                    </article>";
+                }
+                
+            }
+            else {
+                echo "<article class=\"featured\">
+                <h2>Žádný článek není k dispozici</h2>
+                <p>Aktuálně není žádný článek</p>
+                </article>";
+            }
+            /*else if ($now) {
+                echo "<article class=\"featured\">
+                <h2>" . $texts['name'] . "</h2>
+                <object data=\"/uploads/media/default/0001/01/540cb75550adf33f281f29132dddd14fded85bfc.pdf\" type=\"application/pdf\" width=\"100%\" height=\"500px\">
+      <p>Unable to display PDF file. <a href=\"/uploads/media/default/0001/01/540cb75550adf33f281f29132dddd14fded85bfc.pdf\">Download</a> instead.</p>
+    </object>
+                </article>";
+            }*/
 
-            <article>
-                <h3>Nadpis článku 3</h3>
-                <p>Krátký popis článku 3. Klikněte zde pro více informací.</p>
-            </article>
-        </section>
+            /*else {
+                echo "<section class=\"articles\">
+                <article>
+                    <h3>" . $texts['name'] . "</h3>
+                    <object data=\"/uploads/media/default/0001/01/540cb75550adf33f281f29132dddd14fded85bfc.pdf\" type=\"application/pdf\" width=\"100%\" height=\"500px\">
+      <p>Unable to display PDF file. <a href=\"/uploads/media/default/0001/01/540cb75550adf33f281f29132dddd14fded85bfc.pdf\">Download</a> instead.</p>
+    </object>
+                </article>";
+            }*/
+
+            /*<object data=\"" . $text['file'] . "\" type=\"application/pdf\" width=\"100%\" height=\"500px\">
+                        <p>Unable to display PDF file. <a href=\"/uploads/media/default/0001/01/540cb75550adf33f281f29132dddd14fded85bfc.pdf\">Download</a> instead.</p>
+                        </object>*/
+?>
     </section>
+</section>
 
     <footer>
         <p>Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole

@@ -30,9 +30,15 @@
             </div>
             <div class="right-nav">
                 <ul>
+                    <!-- Talčítko pro admin panel se zobrazí pouze u admina -->
+                    <?php
+                        if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
+                            echo '<li><a href="subpages/apanel.php">Admin panel</a></li>';
+                        }
+                    ?>
                     <!-- Tlačítko pro nahrání článků se zobrazí pouze pro autora -->
                     <?php
-                        if (isset($_SESSION['role']) && $_SESSION['role'] == 'author') {
+                        if (isset($_SESSION['role']) && $_SESSION['role'] == 'author' || isset($_SESSION['role']) == 'admin') {
                             echo '<li><a href="subpages/article_upload.php">Nahrát článek</a></li>';
                         }
                     ?>
@@ -55,6 +61,7 @@
                             echo "<li><a href=\"subpages/login.php\">Login</a></li>";
                         }
                     ?>
+
                 </ul>
             </div>
             <div class="dropdown">

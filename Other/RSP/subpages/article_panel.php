@@ -58,9 +58,15 @@
             </div>
             <div class="right-nav">
                 <ul>
+                <?php
+                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
+                                echo '<li><a href="./apanel.php">Admin panel</a></li>';
+                            }
+                        ?>
                         <!-- Tlačítko pro nahrání článků se zobrazí pouze pro autora -->
                         <?php
-                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'author') {
+                        
+                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'author' || $_SESSION['role'] == 'admin') {
                                 echo '<li><a href="./article_upload.php">Nahrát článek</a></li>';
                             }
                         ?>
@@ -89,6 +95,11 @@
                 <button class="dropbtn">&#9776;</button>
                 <div class="dropdown-content">
                     <ul>
+                    <?php
+                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
+                                echo '<li><a href="./apanel.php">Admin panel</a></li>';
+                            }
+                        ?>
                         <?php
                             if (isset($_SESSION['role']) && $_SESSION['role'] == 'author') {
                                 echo '<li><a href="./article_upload.php">Nahrát článek</a></li>';

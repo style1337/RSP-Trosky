@@ -92,7 +92,6 @@
             </div>
         </div>
     </header>
-        
         <main>
             <?php
                 if (isset($_SESSION['success'])) {
@@ -103,7 +102,15 @@
                     unset($_SESSION['error']);
                 }
             ?>
+            Matyáš Tachovský: tachovsk@student.vspj.cz
+            Martin Kos: kos07@student.vspj.cz
+            Patrik Kříž: kriz17@student.vspj.cz
+            Filip Macek: macek06@student.vspj.cz
+            Jan Kudláček: kudlac11@student.vspj.cz
+            Marek Haruda: haruda@student.vspj.cz
         </main>
+        
+        
 
         <footer>
             <p>Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole

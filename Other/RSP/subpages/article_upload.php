@@ -3,7 +3,7 @@
     require("connect.php");
 
     // Přístup povolen pouze pro autora
-    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'author') {
+    if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'author'])) {
         header("Location: unauthorized.php");
         exit();
     }
@@ -35,9 +35,14 @@
             </div>
             <div class="right-nav">
                 <ul>
+                        <?php
+                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
+                                echo '<li><a href="./apanel.php">Admin panel</a></li>';
+                            }
+                        ?>
                         <!-- Tlačítko pro nahrání článků se zobrazí pouze pro autora -->
                         <?php
-                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'author') {
+                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'author' || $_SESSION['role'] == 'admin') {
                                 echo '<li><a href="./article_upload.php">Nahrát článek</a></li>';
                             }
                         ?>
