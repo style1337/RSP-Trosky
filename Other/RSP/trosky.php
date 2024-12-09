@@ -122,7 +122,7 @@
             
 
     <footer>
-        <p>Tata aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole
+        <p>Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole
         polytechnické Jihlava. Nejedná se o stránky skutečného odborného časopisu!</p>  
     </footer>
 </body>
