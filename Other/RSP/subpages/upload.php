@@ -4,9 +4,9 @@ session_start();
 // Zahrnutí souboru connect.php pro připojení k databázi
 require_once 'connect.php';
 
-// Umožnění přístupu pouze pro roli "author"
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'author') {
-    $_SESSION['error'] = "Musíte být přihlášeni jako autor, abyste mohli nahrávat soubory.";
+// Umožnění přístupu pouze pro roli "author" nebo "admin"
+if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'author' && $_SESSION['role'] !== 'admin')) {
+    $_SESSION['error'] = "Musíte být přihlášeni jako autor nebo administrátor, abyste mohli nahrávat soubory.";
     header("Location: unauthorized.php");
     exit();
 }
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (mysqli_query($spojeni, $sql)) {
                     $_SESSION['success'] = "Soubor byl úspěšně nahrán a uložen.";
-                    header("Location: articles.php");
+                    header("Location: article_panel.php");
                     exit();
                 } else {
                     $_SESSION['error'] = "Chyba při ukládání do databáze: " . mysqli_error($spojeni);

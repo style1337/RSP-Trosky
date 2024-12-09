@@ -2,8 +2,8 @@
     session_start();
     require("connect.php");
 
-    // Povolit přístup pouze pro roli "editor"
-    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'editor') {
+    // Modify access check to include admin
+    if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'editor'])) {
         header("Location: unauthorized.php");
         exit();
     }
@@ -75,6 +75,7 @@
         <title>Posouzení námitky</title>
         <link rel="stylesheet" href="../design.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
         <script>
             function confirmAction(action) {
                 let message;
@@ -97,12 +98,12 @@
     <header>
         <div class="header-container">
             <div class="left-nav">
-                <ul>
-                    <li><a href="./contact.php">Kontakt</a></li>
-                    <li><a href="./aboutus.php">O nás</a></li>
-                    <li><a href="./articles.php">Články</a></li>
-                    <li><a href="../trosky.php">Hlavní strana</a></li>
-                </ul>
+            <ul>
+                <li><a href="../trosky.php"><i class="fas fa-home"></i> Hlavní strana</a></li>
+                <li><a href="./articles.php">Články</a></li>
+                <li><a href="./aboutus.php">O nás</a></li>
+                <li><a href="./contact.php">Kontakt</a></li>
+            </ul>
             </div>
             <div class="logo">
                 <a href="../trosky.php">
@@ -111,48 +112,56 @@
             </div>
             <div class="right-nav">
                 <ul>
+                    <!-- Talčítko pro admin panel se zobrazí pouze u admina -->
+                    <?php
+                        if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
+                            echo '<li><a href="./apanel.php"><i class="fas fa-tools"></i> Admin panel</a></li>';
+                        }
+                    ?>
                         <!-- Tlačítko pro nahrání článků se zobrazí pouze pro autora -->
                         <?php
-                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'author') {
-                                echo '<li><a href="./article_upload.php">Nahrát článek</a></li>';
+                            if ((isset($_SESSION['role']) && $_SESSION['role'] == 'author') || (isset($_SESSION['role']) && $_SESSION['role'] == 'admin')) {
+                                echo '<li><a href="./article_upload.php"><i class="fas fa-upload"></i> Nahrát článek</a></li>';
                             }
                         ?>
-                        <!-- Tlačítko pro panel článků se zobrazí pro přihlášené uživatele -->
-                        <?php
-                            if (isset($_SESSION['username'])) {
-                                echo '<li><a href="./article_panel.php">Panel článků</a></li>';
-                            }
-                        ?>
-                        <?php
+                    <!-- Tlačítko pro panel článků se zobrazí pro přihlášené uživatele -->
+                    <?php
+                        if (isset($_SESSION['username'])) {
+                            echo '<li><a href="./article_panel.php"><i class="fas fa-newspaper"></i> Panel článků</a></li>';
+                        }
+                    ?>
+                    <?php
 
-							if (isset($_SESSION['username'])) {
-    					        // User is logged in
-   			 			        //echo '<li><a>' . $_SESSION['username'] . '</a></li><br />';
-                                echo "<li><a href=\"./logout.php\">Logout</a></li>";
-							} 
-                            
-                            else {
-   						        // User is not logged in
-    					        echo "<li><a href=\"./login.php\">Login</a></li>";
-							}
-						?>
+                        if (isset($_SESSION['username'])) {
+                            // User is logged in
+                            //echo '<li><a>' . $_SESSION['username'] . '</a></li><br />';
+                            echo "<li><a href=\"./logout.php\"><i class=\"fas fa-sign-out-alt\"></i> Logout</a></li>";
+                        } 
+                        
+                        else {
+                            // User is not logged in
+                            echo "<li><a href=\"./login.php\"><i class=\"fas fa-sign-in-alt\"></i> Login</a></li>";
+                        }
+                    ?>
+
                 </ul>
             </div>
             <div class="dropdown">
-                <button class="dropbtn">&#9776;</button>
+                <button class="dropbtn"><i class="fas fa-bars"></i></button>
                 <div class="dropdown-content">
                     <ul>
+                        <!-- Tlačítko pro nahrání článků se zobrazí pouze pro autora -->
                         <?php
-                            if (isset($_SESSION['role']) && $_SESSION['role'] == 'author') {
-                                echo '<li><a href="./article_upload.php">Nahrát článek</a></li>';
+                            if ((isset($_SESSION['role']) && $_SESSION['role'] == 'author') || (isset($_SESSION['role']) && $_SESSION['role'] == 'admin')) {
+                                echo '<li><a href="./article_upload.php"><i class="fas fa-upload"></i> Nahrát článek</a></li>';
                             }
                         ?>
                         <?php
                             if (isset($_SESSION['username'])) {
-                                echo '<li><a href="./article_panel.php">Panel článků</a></li>';
+                                echo '<li><a href="./article_panel.php"><i class="fas fa-newspaper"></i> Panel článků</a></li>';
                             }
                         ?>
-                        <li><a href="../trosky.php">Hlavní strana</a></li>
+                        <li><a href="../trosky.php"><i class="fas fa-home"></i> Hlavní strana</a></li>
                         <li><a href="./articles.php">Články</a></li>
                         <li><a href="./aboutus.php">O nás</a></li>
                         <li><a href="./contact.php">Kontakt</a></li>
@@ -161,12 +170,12 @@
 							if (isset($_SESSION['username'])) {
     					        // User is logged in
    			 			        //echo '<li><a>' . $_SESSION['username'] . '</a></li><br />';
-                                echo "<li><a href=\"./logout.php\">Logout</a></li>";
+                                echo "<li><a href=\"./logout.php\"><i class=\"fas fa-sign-out-alt\"></i> Logout</a></li>";
 							} 
                             
                             else {
    						        // User is not logged in
-    					        echo "<li><a href=\"./login.php\">Login</a></li>";
+    					        echo "<li><a href=\"./login.php\"><i class=\"fas fa-sign-in-alt\"></i> Login</a></li>";
 							}
 						?>
                     </ul>

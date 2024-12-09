@@ -1,14 +1,85 @@
 <?php
-	session_start();
-    require("connect.php");
+session_start();
+require("connect.php");
+
+// Kontrola přístupu
+if ($_SESSION['role'] != 'admin') {
+    header("Location: unauthorized.php");
+    exit();
+}
+
+
+
+// Get user_id from URL parameter
+$user_id = isset($_GET['id']) ? $_GET['id'] : null;
+if (!$user_id) {
+    header("Location: apanel.php");
+    exit();
+}
+
+// Funkce pro formátování role
+function formatRole($role) {
+    switch($role) {
+        case 'author': return 'Autor';
+        case 'editor': return 'Redaktor';
+        case 'chiefeditor': return 'Šéfredaktor';
+        case 'admin': return 'Administrátor';
+        case 'reviewer': return 'Recenzent';
+        default: return $role;
+    }
+}
+
+// Fetch user details
+$query = "SELECT * FROM troskopis_users WHERE user_id = ?";
+$stmt = $spojeni->prepare($query);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+if (!$user) {
+    $_SESSION['error'] = "Uživatel nenalezen";
+    header("Location: apanel.php");
+    exit();
+}
+
+// Process form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $role = $_POST['role'];
+
+    // Convert formal role back to system role
+    $roleMap = [
+        'Autor' => 'author',
+        'Redaktor' => 'editor',
+        'Šéfredaktor' => 'chiefeditor',
+        'Administrátor' => 'admin',
+        'Recenzent' => 'reviewer'
+    ];
+
+    $systemRole = $roleMap[$role];
+
+    $updateQuery = "UPDATE troskopis_users SET username = ?, email = ?, role = ? WHERE user_id = ?";
+    $updateStmt = $spojeni->prepare($updateQuery);
+    $updateStmt->bind_param("sssi", $username, $email, $systemRole, $user_id);
+    
+    if ($updateStmt->execute()) {
+        $_SESSION['success'] = "Údaje byly úspěšně aktualizovány";
+        header("Location: apanel.php");
+        exit();
+    } else {
+        $_SESSION['error'] = "Chyba při aktualizaci údajů";
+    }
+}
 ?>
 
 <!DOCTYPE html>
-<html lang="cs">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Přihlášení</title>
+    <title>Změna údajů</title>
     <link rel="stylesheet" href="../design.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -101,42 +172,51 @@
             </div>
         </div>
     </header>
-
     
     <main>
-        <?php
-            if (isset($_SESSION['success'])) {
-                echo '<div class="status-message status-message-success">' . htmlspecialchars($_SESSION['success']) . '</div>';
-                unset($_SESSION['success']);
-            } elseif (isset($_SESSION['error'])) {
-                echo '<div class="status-message status-message-error">' . htmlspecialchars($_SESSION['error']) . '</div>';
-                unset($_SESSION['error']);
-            }
-        ?>
-        <div class="login-container">
-            <h2>Přihlášení</h2>
-            <form action="submit_login.php" method="POST">
-                <div class="form-group">
-                    <label for="username">Uživatelské jméno</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Heslo</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <div class="form-group">
-                    <button type="submit">Přihlásit se</button>
-                </div>
-            </form>
-            <div class="form-options">
-                <a href="register.php">Nemáte účet? Zaregistrujte se</a>
-                <a href="articles.php" class="guest-link">Pokračovat jako čtenář</a>
+
+    <div class="edit-user-container">
+        <h2>Upravit uživatele</h2>
+        <form method="POST" class="edit-user-form">
+            <div class="form-group">
+                <label for="username">Uživatelské jméno:</label>
+                <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
             </div>
-        </div>
-    </main>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Role:</label>
+                <select id="role" name="role" required>
+                    <?php
+                        $roles = [
+                            'author' => 'Autor',
+                            'editor' => 'Redaktor',
+                            'chiefeditor' => 'Šéfredaktor',
+                            'admin' => 'Administrátor',
+                            'reviewer' => 'Recenzent'
+                        ];
+                        foreach ($roles as $value => $label) {
+                            $selected = ($user['role'] === $value) ? 'selected' : '';
+                            echo "<option value=\"$label\" $selected>$label</option>";
+                        }
+                    ?>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="save-button">Uložit změny</button>
+                <a href="apanel.php" class="cancel-button">Zrušit</a>
+            </div>
+        </form>
+    </div>
+</main>
 
     <footer>
-        <p>Tato aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole
+        <p>Tata aplikace je výsledkem školního projektu v kurzu Řízení SW projektů na Vysoké škole
         polytechnické Jihlava. Nejedná se o stránky skutečného odborného časopisu!</p>  
     </footer>
 </body>

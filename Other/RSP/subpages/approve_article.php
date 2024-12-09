@@ -2,8 +2,8 @@
 session_start();
 require("connect.php");
 
-// Povolit přístup pouze pro roli "editor"
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'editor') {
+// Povolit přístup pouze pro roli "editor" nebo "admin"
+if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'editor' && $_SESSION['role'] !== 'admin')) {
     header("Location: unauthorized.php");
     exit();
 }

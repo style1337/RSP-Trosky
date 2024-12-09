@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 02, 2024 at 01:34 PM
+-- Generation Time: Dec 09, 2024 at 02:40 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -28,6 +28,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `troskopis_articlehistory` (
+  `history_id` int(11) NOT NULL,
   `article_id` int(11) NOT NULL,
   `author_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -106,6 +107,17 @@ CREATE TABLE `troskopis_users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
+-- Dumping data for table `troskopis_users`
+--
+
+INSERT INTO `troskopis_users` (`user_id`, `username`, `password`, `email`, `role`) VALUES
+(2, 'recenzent', '202cb962ac59075b964b07152d234b70', 'recenzent@neco.cz', 'reviewer'),
+(3, 'autor', '202cb962ac59075b964b07152d234b70', 'autor@autor.cz', 'author'),
+(4, 'redaktor', '202cb962ac59075b964b07152d234b70', 'redaktor@rsp.cz', 'editor'),
+(5, 'sefredaktor', '202cb962ac59075b964b07152d234b70', 'sefredaktor@rsp.cz', 'chiefeditor'),
+(6, 'admin', '202cb962ac59075b964b07152d234b70', 'admin@admin.cz', 'admin');
+
+--
 -- Indexes for dumped tables
 --
 
@@ -113,8 +125,9 @@ CREATE TABLE `troskopis_users` (
 -- Indexes for table `troskopis_articlehistory`
 --
 ALTER TABLE `troskopis_articlehistory`
-  ADD PRIMARY KEY (`article_id`),
-  ADD KEY `authors` (`author_id`);
+  ADD PRIMARY KEY (`history_id`),
+  ADD KEY `authors` (`author_id`),
+  ADD KEY `article_id_idx` (`article_id`);
 
 --
 -- Indexes for table `troskopis_articles`
@@ -151,6 +164,12 @@ ALTER TABLE `troskopis_users`
 --
 
 --
+-- AUTO_INCREMENT for table `troskopis_articlehistory`
+--
+ALTER TABLE `troskopis_articlehistory`
+  MODIFY `history_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `troskopis_articles`
 --
 ALTER TABLE `troskopis_articles`
@@ -172,7 +191,7 @@ ALTER TABLE `troskopis_reviews`
 -- AUTO_INCREMENT for table `troskopis_users`
 --
 ALTER TABLE `troskopis_users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
@@ -182,6 +201,7 @@ ALTER TABLE `troskopis_users`
 -- Constraints for table `troskopis_articlehistory`
 --
 ALTER TABLE `troskopis_articlehistory`
+  ADD CONSTRAINT `articles_history` FOREIGN KEY (`article_id`) REFERENCES `troskopis_articles` (`article_id`),
   ADD CONSTRAINT `authors_history` FOREIGN KEY (`author_id`) REFERENCES `troskopis_users` (`user_id`);
 
 --
