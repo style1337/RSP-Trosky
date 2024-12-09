@@ -217,7 +217,7 @@
                     type="submit" 
                     name="action" 
                     value="edit" 
-                    class="appeal-button edit-button"
+                    class="appeal-button edit-button-appeal"
                     onclick="return confirmAction('edit')"
                     style="background-color: #ffc107;"
                 >

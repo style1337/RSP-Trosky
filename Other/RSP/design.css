@@ -775,6 +775,75 @@ footer {
     background-color: #0056b3;
 }
 
+/* Appeal Container */
+.appeal-container {
+    background: linear-gradient(135deg, #f0f0f0, #d0d0d0);
+    padding: 2rem;
+    max-width: 800px;
+    margin: 2rem auto;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.appeal-container h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+    text-align: center;
+}
+
+.appeal-text {
+    background: #333;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 5px;
+    color: #f9f9f9;
+    border-left: 5px solid #007bff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.appeal-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-decoration: none;
+    text-align: center;
+    font-size: 16px;
+    min-width: 120px;
+}
+
+.appeal-button:hover {
+    transform: translateY(-2px);
+}
+
+.approve-button {
+    background-color: #28a745;
+}
+
+.approve-button:hover {
+    background-color: #218838;
+}
+
+.reject-button {
+    background-color: #dc3545;
+}
+
+.reject-button:hover {
+    background-color: #c82333;
+}
+
+.edit-button-appeal {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.edit-button-appeal:hover {
+    background-color: #e0a800;
+}
+
 /* Seznam uživatelů */
 .user-list {
     display: flex;

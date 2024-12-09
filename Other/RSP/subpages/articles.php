@@ -77,7 +77,7 @@
                 </ul>
             </div>
             <div class="dropdown">
-                <button class="dropbtn"><i class="fas fa-bars\"></i></button>
+                <button class="dropbtn"><i class="fas fa-bars"></i></button>
                 <div class="dropdown-content">
                     <ul>
                         <!-- Tlačítko pro nahrání článků se zobrazí pouze pro autora -->
@@ -152,47 +152,71 @@
         
         
         <?php
-            $query = "SELECT a.name, a.file, a.category, a.date, u.username as author 
+            $query = "SELECT a.name, a.file, a.category, a.date, a.featured, a.article_id, u.username as author 
                      FROM troskopis_articles a 
                      LEFT JOIN troskopis_users u ON a.author_id = u.user_id 
                      WHERE a.status = 'approved' AND a.category = ? 
-                     ORDER BY a.date DESC;";
+                     ORDER BY a.featured DESC, a.date DESC;";
             $stmt = mysqli_prepare($spojeni, $query);
             mysqli_stmt_bind_param($stmt, "i", $category);
             mysqli_stmt_execute($stmt);
             $texts = mysqli_stmt_get_result($stmt);
 
             if ($texts && mysqli_num_rows($texts) > 0) {
-                $text = mysqli_fetch_assoc($texts);
-                echo "<article class=\"featured\">
-                <h2>" . $text['name'] . "</h2>
-                <div class='article-meta'>
-                    <span class='author'>Autor: " . htmlspecialchars($text['author']) . "</span>
-                    <span class='date'>Datum: " . date('d.m.Y', strtotime($text['date'])) . "</span>
-                </div>
-                <div class=\"pdf-container\">
-                    <object data=\"" . $text['file'] . "\" type=\"application/pdf\" width=\"100%\" height=\"800\">
-                        <p>Unable to display PDF file. <a href=\"" . $text['file'] . "\">Download</a> instead.</p>
-                    </object>
-                </div>
-                </article>";
+                $featured_shown = false;
+                $all_articles = [];
                 
-                echo "<section class=\"articles\">";
+                // First pass: check if there's any featured article and collect all articles
                 while ($text = mysqli_fetch_assoc($texts)) {
-                    echo "<article class='article-card'>
-                        <h3>" . $text['name'] . "</h3>
-                        <div class='article-meta'>
-                            <span class='author'>Autor: " . htmlspecialchars($text['author']) . "</span>
-                            <span class='date'>Datum: " . date('d.m.Y', strtotime($text['date'])) . "</span>
-                        </div>
-                        <a href=\"" . $text['file'] . "\" class=\"review-button\">Zobrazit článek</a> 
-                    </article>";
+                    $all_articles[] = $text;
+                    if ($text['featured'] == 1) {
+                        $featured_shown = true;
+                    }
+                }
+
+                // If no featured article, make the latest one featured
+                if (!$featured_shown && !empty($all_articles)) {
+                    $all_articles[0]['featured'] = 1;
+                    $featured_shown = true;
+                }
+
+                // Display articles
+                foreach ($all_articles as $text) {
+                    if ($text['featured'] == 1 && $featured_shown) {
+                        echo "<article class=\"featured\">
+                            <h2>" . $text['name'] . "</h2>
+                            <div class='article-meta'>
+                                <span class='author'>Autor: " . htmlspecialchars($text['author']) . "</span>
+                                <span class='date'>Datum: " . date('d.m.Y', strtotime($text['date'])) . "</span>
+                            </div>
+                            <div class=\"pdf-container\">
+                                <object data=\"" . $text['file'] . "\" type=\"application/pdf\" width=\"100%\" height=\"800\">
+                                    <p>Unable to display PDF file. <a href=\"" . $text['file'] . "\">Download</a> instead.</p>
+                                </object>
+                            </div>
+                        </article>";
+                        echo "<section class=\"articles\">";
+                    } else {
+                        echo "<article class='article-card'>";
+                        if (($role == 'admin' || $role == 'editor') && $text['featured'] != 1) {
+                            echo "<div class='quick-actions'>
+                                <a href='set_featured.php?id=" . $text['article_id'] . "&category=" . $category . "' class='review-button'>Nastavit jako hlavní</a>
+                            </div>";
+                        }
+                        echo "<h3>" . $text['name'] . "</h3>
+                            <div class='article-meta'>
+                                <span class='author'>Autor: " . htmlspecialchars($text['author']) . "</span>
+                                <span class='date'>Datum: " . date('d.m.Y', strtotime($text['date'])) . "</span>
+                            </div>
+                            <a href=\"" . $text['file'] . "\" class=\"review-button\">Zobrazit článek</a>
+                        </article>";
+                    }
                 }
                 echo "</section>";
             } else {
                 echo "<article class=\"featured\">
-                <h2>Žádný článek není k dispozici</h2>
-                <p>V této kategorii není momentálně žádný článek</p>
+                    <h2>Žádný článek není k dispozici</h2>
+                    <p>V této kategorii není momentálně žádný článek</p>
                 </article>";
             }
         ?>

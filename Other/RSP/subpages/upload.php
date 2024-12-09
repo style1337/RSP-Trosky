@@ -11,6 +11,32 @@ if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'author' && $_SESSION['r
     exit();
 }
 
+// Helper functions
+function convertPHPSizeToBytes($sSize) {
+    $sSuffix = strtoupper(substr($sSize, -1));
+    if (!in_array($sSuffix, array('P','T','G','M','K'))) {
+        return (int)$sSize;
+    }
+    $iValue = substr($sSize, 0, -1);
+    switch ($sSuffix) {
+        case 'P': $iValue *= 1024;
+        case 'T': $iValue *= 1024;
+        case 'G': $iValue *= 1024;
+        case 'M': $iValue *= 1024;
+        case 'K': $iValue *= 1024;
+    }
+    return (int)$iValue;
+}
+
+function formatBytes($bytes) {
+    if ($bytes > 1024*1024) {
+        return round($bytes / (1024*1024), 2) . " MB";
+    } elseif ($bytes > 1024) {
+        return round($bytes / 1024, 2) . " KB";
+    }
+    return $bytes . " B";
+}
+
 /*
 // Ověření, zda je uživatel přihlášen
 if (!isset($_SESSION['user_id'])) {
@@ -30,11 +56,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fileTitle = mysqli_real_escape_string($spojeni, $_POST['article_name']); // Ošetření vstupu
         $artNumber = (int)$_POST['article_number']; // Zpracování hodnocení jako celé číslo
 
-        // Urč, kam se soubor uloží
+        // Check file size (assuming upload_max_filesize is the limiting factor)
+        $maxFileSize = min(
+            convertPHPSizeToBytes(ini_get('upload_max_filesize')),
+            convertPHPSizeToBytes(ini_get('post_max_size'))
+        );
+        
+        if ($fileSize > $maxFileSize) {
+            $_SESSION['error'] = "Soubor je příliš velký. Maximální povolená velikost je " . 
+                                formatBytes($maxFileSize) . ".";
+            header("Location: article_upload.php");
+            exit();
+        }
+
+        // Improved PDF validation
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $fileTmpPath);
+        finfo_close($finfo);
+
         $uploadPath = '../articles/' . uniqid() . '_' . basename($_FILES['pdfFile']['name']);
 
-        // Zkontroluj, zda je soubor ve formátu PDF
-        if ($fileType === 'application/pdf') {
+        // Check both mime type and file extension
+        $isPDF = ($mimeType === 'application/pdf' || $mimeType === 'application/x-pdf') 
+                 && strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) === 'pdf';
+
+        if ($isPDF) {
             // Přesun souboru do určeného adresáře
             if (move_uploaded_file($fileTmpPath, $uploadPath)) {
                 // Uložení dat do databáze
@@ -52,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['error'] = "Došlo k chybě při ukládání souboru na server.";
             }
         } else {
-            $_SESSION['error'] = "Pouze PDF soubory jsou povoleny.";
+            $_SESSION['error'] = "Soubor musí být ve formátu PDF. Detekován formát: " . $mimeType;
         }
     } else {
         $_SESSION['error'] = "Nebyl odeslán soubor, název nebo hodnocení.";
@@ -65,6 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 header("Location: article_upload.php");
 exit();
 
-// Zavření připojení k databázi
-mysqli_close($spojeni);
+
+
 ?>
