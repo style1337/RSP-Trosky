@@ -18,12 +18,19 @@
         WHERE article_id = $article_id
     ";
 
-    // If user is not admin, check if user is owner
-    if ($_SESSION['role'] !== 'admin') {
-        $article_query .= " AND author_id = {$_SESSION['user_id']}";
+    // Prepared statement pro získání článku
+    if ($_SESSION['role'] === 'admin') {
+        $article_query = "SELECT * FROM troskopis_articles WHERE article_id = ?";
+        $stmt = mysqli_prepare($spojeni, $article_query);
+        mysqli_stmt_bind_param($stmt, "i", $article_id);
+    } else {
+        $article_query = "SELECT * FROM troskopis_articles WHERE article_id = ? AND author_id = ?";
+        $stmt = mysqli_prepare($spojeni, $article_query);
+        mysqli_stmt_bind_param($stmt, "ii", $article_id, $_SESSION['user_id']);
     }
 
-    $article_result = mysqli_query($spojeni, $article_query);
+    mysqli_stmt_execute($stmt);
+    $article_result = mysqli_stmt_get_result($stmt);
     $article = mysqli_fetch_assoc($article_result);
 
     if (!$article) {
@@ -34,12 +41,30 @@
 
     // Handle form submission
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (isset($_FILES['pdfFile'])) {
+        if (isset($_FILES['pdfFile']) && $_FILES['pdfFile']['error'] === UPLOAD_ERR_OK) {
             $fileTmpPath = $_FILES['pdfFile']['tmp_name'];
             $fileName = $_FILES['pdfFile']['name'];
-            $fileType = $_FILES['pdfFile']['type'];
 
-            if ($fileType === 'application/pdf') {
+            // Vylepšená validace PDF
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $fileTmpPath);
+            finfo_close($finfo);
+
+            // Seznam povolených MIME typů
+            $allowedMimeTypes = [
+                'application/pdf',
+                'application/x-pdf',
+                'application/acrobat',
+                'application/vnd.pdf',
+                'text/pdf',
+                'text/x-pdf'
+            ];
+
+            // Kontrola MIME typu a přípony
+            $isPDF = (in_array($mimeType, $allowedMimeTypes) && 
+            strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) === 'pdf');
+
+            if ($isPDF) {
                 // Generate new unique filename
                 $uploadPath = '../articles/' . uniqid() . '_' . basename($fileName);
 
@@ -85,10 +110,18 @@
                     }
                 } else {
                     $_SESSION['error'] = "Chyba při nahrávání souboru.";
+                    header("Location: edit_article.php?id=" . $article_id . "&appealed=" . $appealed);
+                    exit();
                 }
             } else {
-                $_SESSION['error'] = "Pouze PDF soubory jsou povoleny.";
+                $_SESSION['error'] = "Soubor musí být ve formátu PDF. Detekován formát: " . $mimeType;
+                header("Location: edit_article.php?id=" . $article_id . "&appealed=" . $appealed);
+                exit();
             }
+        } else {
+            $_SESSION['error'] = "Chyba při nahrávání souboru nebo soubor nebyl vybrán.";
+            header("Location: edit_article.php?id=" . $article_id . "&appealed=" . $appealed);
+            exit();
         }
     }
 ?>

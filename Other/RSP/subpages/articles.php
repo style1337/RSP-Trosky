@@ -199,8 +199,8 @@
                     } else {
                         echo "<article class='article-card'>";
                         if (($role == 'admin' || $role == 'editor') && $text['featured'] != 1) {
-                            echo "<div class='quick-actions'>
-                                <a href='set_featured.php?id=" . $text['article_id'] . "&category=" . $category . "' class='review-button'>Nastavit jako hlavní</a>
+                            echo "<div class='quick-actions featured-container'>
+                                <a href='set_featured.php?id=" . $text['article_id'] . "&category=" . $category . "' class='featured-button'>Nastavit jako hlavní</a>
                             </div>";
                         }
                         echo "<h3>" . $text['name'] . "</h3>

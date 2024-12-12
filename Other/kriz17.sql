@@ -55,7 +55,8 @@ CREATE TABLE `troskopis_articles` (
   `version` int(11) NOT NULL DEFAULT 1,
   `status` enum('pending_assignment','pending_review','reviewed','editing','approved','rejected','appealed') NOT NULL,
   `assigned_reviewer` int(11) DEFAULT NULL,
-  `appeal_message` varchar(1000) DEFAULT NULL
+  `appeal_message` varchar(1000) DEFAULT NULL,
+  `featured` BOOLEAN DEFAULT FALSE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 -- --------------------------------------------------------
